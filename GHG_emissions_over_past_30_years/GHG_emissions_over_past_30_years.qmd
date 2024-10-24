@@ -1,0 +1,423 @@
+---
+title: "Research on Global Evolution of Green House Gas (GHG) Emissions Over the Past 30 Years"
+author:
+  - Kexin Lin
+  - Linglu Li
+  - Xiaofeng Cai
+  - Yanru Fang
+date: "2024-06-12"
+format: pdf
+fontsize: 12pt
+number-sections: TRUE
+linkcolor: purple
+geometry:
+  - margin=1in
+toc: TRUE
+---
+
+\newpage
+
+# Abstract {#sec-abstract}
+
+This report investigates the evolution of greenhouse gas (GHG) emissions over the past 30 years in selected countries from Asia, Africa, Europe, Oceania, South America, and North America using historical GHG Emissions Data from Climate Watch, analyzed with RStudio. We examine global GHG emission patterns and compare emissions between the northern and southern hemispheres. Our findings indicate that, most countries have maintained relatively stable emission levels with some fluctuations, while China exhibits a clear increasing trend. Additionally, China and the United States have significantly higher emissions than other countries. In conclusion, there is an overall increasing trend in global emissions. It is crucial to develop strategies and policies for achieving net-zero GHG emissions globally.
+
+# Introduction
+
+Climate change has become an increasingly severe issue nowadays. Greenhouse gases (GHGs), such as carbon dioxide, methane, and nitrous oxide, absorb infrared radiation and trap heat, contributing to global warming and climate change. With the urgent need to reduce greenhouse gas emissions and achieve net-zero greenhouse gas emissions, our group has posed several questions: How have greenhouse gas emissions evolved over the past 30 years in selected representative countries from Asia, Africa, North America, Oceania, South America, and Europe? What are the emission levels of each representative country in their respective Northern and Southern Hemispheres? Additionally, what is the trend of global GHG emissions?
+
+## Data Descrition
+
+Source: The historical greenhouse gas (GHG) emissions data from 1990 to 2019 was collected from Climate Watch.
+
+```{r, echo = F}
+library(pander)
+variable_descriptions <- data.frame(
+  Variable = c("Country", 
+               "Gas", 
+               "Unit", 
+               "Year", 
+               "Emissions"),
+  Description = c("The name of the country from which the emission data is collected",
+                  "Various types of GHGs (We refer only to total GHGs in our report)",
+                  "The unit of GHG emissions (MtCO2e)",
+                  "The year in which the emissions were recorded",
+                  "The amount of greenhouse gases emitted"))
+pander(variable_descriptions)
+```
+
+# Part I: Gas Emissions Change within Countries Over Year
+
+We've chosen six countries—Australia, Brazil, China, the United States, the United Kingdom, and South Africa—to represent six continents: Oceania, South America, Asia, North America, Europe, and Africa, respectively. Our goal is to analyze the trends in greenhouse gas emissions over a 30-year period for each country.
+
+```{r, message = F, warning = F, echo=F}
+library(dplyr)
+library(tidyverse)
+library(ggplot2)
+library(lubridate)
+library(pander)
+library(grid)
+library(gridExtra)
+```
+
+```{r, echo = F, warning = F}
+historical <- read.csv("data/historical_emissions.csv")
+historical <- historical %>%
+  mutate(across(starts_with("X"), ~as.numeric(as.character(.))))
+
+historical <- historical %>%
+  pivot_longer(cols = starts_with("X"), 
+               names_to = "Year", 
+               names_prefix = "X", 
+               values_to = "Emissions") %>%
+  mutate(Year = as.integer(Year))
+```
+
+We'll begin by creating line graph for every country and matching up the year with the emissions data to start with our research. We will be able to identify any obvious trends or correlations in the emissions data throughout the 30-year period due to this visual illustration. We can figure out whether each country's emissions data has a linear trend by closely reviewing these line graphs.
+
+## China
+```{r, echo=FALSE}
+China <- historical %>%
+  filter(Country %in% c("China"))
+
+China_plot <- China %>%
+  ggplot(aes(x = Year, y = Emissions)) +
+  geom_line(group = 1) +
+  geom_point() +
+  labs(x = "Year",
+       y = "Gases Emissions",
+       title = "Total GHGs Emissions Over Year in China") +
+  theme_minimal()
+China_plot
+```
+
+China's greenhouse gas emissions have increased constantly since 1990, and only dropped a little bit around the year 2015.
+
+```{r, echo=FALSE}
+anova_China <- aov(Emissions ~ Year, China)
+summary(anova_China)
+```
+
+The p-value of China's greenhouse gas emissions ANOVA test is less than 2e-16, indicating that there is a statistically significant relationship between emissions and the year. This implies that greenhouse gas emissions have changed over 30 years.
+
+## United States
+```{r, echo=FALSE}
+US <- historical %>%
+  filter(Country %in% c("United States"))
+
+US_plot <- US %>%
+  ggplot(aes(x = Year, y = Emissions)) +
+  geom_line(group = 1) +
+  geom_point() +
+  labs(x = "Year",
+       y = "Gases Emissions",
+       title = "Total GHGs Emissions Over Year in United States") +
+  theme_minimal()
+US_plot
+```
+
+The United States greenhouse gas emissions were quite high from 1997 to 2008. However, it dropped suddenly in 2009 and then stayed constant at that level.
+
+```{r, echo=FALSE}
+anova_US <- aov(Emissions ~ Year, US)
+summary(anova_US)
+```
+
+The p-value of the United States' greenhouse gas emissions ANOVA test is 0.718, indicating that there is no statistically significant relationship between emissions and the year. This implies that greenhouse gas emissions of the United States have not significantly changed over the past 30 years.
+
+## Australia
+```{r, echo=FALSE}
+Australia <- historical %>%
+  filter(Country %in% c("Australia"))
+
+Australia_plot <- Australia %>%
+  ggplot(aes(x = Year, y = Emissions)) +
+  geom_line(group = 1) +
+  geom_point() +
+  labs(x = "Year",
+       y = "Gases Emissions",
+       title = "Total GHGs Emissions Over Year in Australia") +
+  theme_minimal()
+Australia_plot
+```
+
+Since 1995, greenhouse gas emissions in Australia have surged suddenly, reaching its highest point around 2000, then fluctuating in the following years.
+
+```{r, echo=FALSE}
+anova_Australia <- aov(Emissions ~ Year, Australia)
+summary(anova_Australia)
+```
+
+The p-value of Australia's greenhouse gas emissions ANOVA test is 0.02, indicating that there is a statistically significant relationship between emissions and the year. This implies that greenhouse gas emissions have changed over 30 years.
+
+## Brazil
+```{r, echo=FALSE}
+Brazil <- historical %>%
+  filter(Country %in% c("Brazil"))
+
+Brazil_plot <- Brazil %>%
+  ggplot(aes(x = Year, y = Emissions)) +
+  geom_line(group = 1) +
+  geom_point() +
+  labs(x = "Year",
+       y = "Gases Emissions",
+       title = "Total GHGs Emissions Over Year in Brazil") +
+  theme_minimal()
+Brazil_plot
+```
+
+Brazil's greenhouse gas emissions increased constantly from 1990 to 2010, then dropped suddenly in 2010, and increased again, but never reached the same levels as before.
+
+```{r,echo=FALSE}
+anova_Brazil <- aov(Emissions ~ Year, Brazil)
+summary(anova_Brazil)
+```
+
+The p-value of Brazil's greenhouse gas emissions ANOVA test is 0.0424, indicating there is a statistically significant relationship between emissions and the year. This implies that greenhouse gas emissions have changed over 30 years.
+
+## United Kingdom
+```{r, echo=FALSE}
+UK <- historical %>%
+  filter(Country %in% c("United Kingdom"))
+
+UK_plot <- UK %>%
+  ggplot(aes(x = Year, y = Emissions)) +
+  geom_line(group = 1) +
+  geom_point() +
+  labs(x = "Year",
+       y = "Gases Emissions",
+       title = "Total GHGs Emissions Over Year in United Kingdom") +
+  theme_minimal()
+UK_plot
+```
+
+It is very surprising that the United Kingdom's greenhouse gas emissions are constantly decreasing each year.
+
+```{r, echo=FALSE}
+anova_UK <- aov(Emissions ~ Year, UK)
+summary(anova_UK)
+```
+
+The p-value of United Kingdom's greenhouse gas emissions ANOVA test is 9.55e-16, indicating there is a statistically significant relationship between emissions and the year. This implies that greenhouse gas emissions have changed over 30 years.
+
+## South Africa
+```{r, echo=FALSE}
+SA <- historical %>%
+  filter(Country %in% c("South Africa"))
+
+SA_plot <- SA %>%
+  ggplot(aes(x = Year, y = Emissions)) +
+  geom_line(group = 1) +
+  geom_point() +
+  labs(x = "Year",
+       y = "Gases Emissions",
+       title = "Total GHGs Emissions Over Year in South Africa") +
+  theme_minimal()
+SA_plot
+```
+
+South Africa's greenhouse gas emissions are constantly increasing with some fluctuations between years. 
+
+```{r, echo=FALSE}
+anova_SA <- aov(Emissions ~ Year, SA)
+summary(anova_SA)
+```
+
+The p-value of South Africa's greenhouse gas emissions ANOVA test is less than 2e-16, indicating there is a statistically significant relationship between emissions and the year. This implies that greenhouse gas emissions have changed over 30 years.
+
+
+## All Countries 
+
+We want to compare the trend of GHGs emissions across all representative countries, so we created a line graph that includes all six representative countries.
+
+```{r, echo=FALSE, fig.width=10}
+combine_all <- historical %>%
+  filter(Country %in% c("South Africa", "Brazil", "Australia", "China", 
+                        "United States", "United Kingdom"))
+combine_all$Year <- factor(combine_all$Year, levels = sort(unique(combine_all$Year)))
+
+combine_all_plot <- combine_all %>%
+  ggplot(aes(x = Year, y = Emissions, color = Country, group = Country)) +
+  geom_line() +
+  geom_point() +
+  labs(x = "Year",
+       y = "Gases Emissions",
+       title = "Gas Emissions Over Time Among Different Countries",
+       color = "Country") +
+  theme_minimal() +
+  theme(plot.title = element_text(size = 15),
+        legend.title = element_text(size = 12),
+        legend.text = element_text(size = 10),
+        axis.text.x = element_text(angle = 45, hjust = 1))
+combine_all_plot
+```
+
+In the line graph we created, China presents a clear and consistent linearly increasing trend, suggesting the need for China to implement policies to decrease GHG emissions. Conversely, other countries have GHG emissions that are more stable with some fluctuations. However, China, the United States, and Brazil still have higher emissions than the rest of the countries. Interestingly, Brazil's emissions data reveals a linear trend from 1990 to 2010, then followed by a sudden decrease in emissions from 2010 to 2011, plummeting from 2109.66 MtCO₂e to 1276.46 MtCO₂e. This unusual anomaly in Brazil's emissions trend suggests that there may be policy changes focused on environmental conservation that could lead to a significant reduction in gas emissions.
+
+Since it is quite hard to tell the difference in trend between South Africa, the United Kingdom, and Brazil, we have produced another graph with specific emphasis on these three countries.
+
+```{r, echo=FALSE, fig.width=10}
+# zoom 
+combine_zoom <- historical %>%
+  filter(Country %in% c("South Africa", "Australia", "United Kingdom"))
+combine_zoom$Year <- factor(combine_zoom$Year, levels = sort(unique(combine_zoom$Year)))
+
+combine_zoom_plot <- combine_zoom %>%
+  ggplot(aes(x = Year, y = Emissions, color = Country, group = Country)) +
+  geom_line() +
+  geom_point() +
+  labs(x = "Year",
+       y = "Gases Emissions",
+       title = "Gas Emissions Over Time Among Different Countries (Zoom in)",
+       color = "Country") +
+  theme_minimal() +
+  theme(plot.title = element_text(size = 15),
+        legend.title = element_text(size = 12),
+        legend.text = element_text(size = 10),
+        axis.text.x = element_text(angle = 45, hjust = 1))
+combine_zoom_plot
+```
+
+It is clearer now that the United Kingdom began with the highest GHG emissions among the three but later decreased its emissions and became the country with the least emissions among the three. Although Australia’s overall emissions did not change much, it experienced many fluctuations. Lastly, South Africa’s emissions have increased over the years, and in the year 2013, GHG emissions of South Africa and Australia were almost the same.
+
+## Q-Q Plot
+```{r, echo = F, message = F, fig.height=5, fig.width=10, warning=FALSE}
+qqnorm_plot <- function(resid, title) {
+  ggplot(data = data.frame(sample = resid), aes(sample = sample)) +
+    stat_qq() +
+    stat_qq_line(color = "red") +
+    labs(title = title) +
+    theme_minimal()
+}
+
+Australia_qq <- qqnorm_plot(resid(anova_Australia), "Australia")
+Brazil_qq <- qqnorm_plot(resid(anova_Brazil), "Brazil")
+China_qq <- qqnorm_plot(resid(anova_China), "China")
+SA_qq <- qqnorm_plot(resid(anova_SA), "South Africa")
+US_qq <- qqnorm_plot(resid(anova_US), "United States")
+UK_qq <- qqnorm_plot(resid(anova_UK), "United Kingdom")
+
+combined_qq_plot <- grid.arrange(Australia_qq, 
+                                 Brazil_qq, 
+                                 China_qq, 
+                                 SA_qq, 
+                                 US_qq, 
+                                 UK_qq, 
+                                 ncol = 2, 
+                                 top = textGrob("Q-Q Plots for Each Representative Country's Gases Emissions",
+                                                gp = gpar(fontsize = 20, fontface = "bold")))
+
+```
+
+The Q-Q plots for each representative country's gases emissions of residuals aligning well with the line suggests that the residuals are approximately normally distributed.
+
+\newpage
+
+# Part II: Comapring Gas Emissions Between Countries
+
+This part we aim to compare the representative countries collectively using a line graph and then reviewing them geographically, distinguishing between the Northern Hemisphere and the Southern Hemisphere. The Northern Hemisphere includes China, the United States and the United Kingdom, while the Southern Hemisphere comprises Australia, Brazil and South Africa.
+
+## North Hemisphere
+```{r, fig.width=10, echo=FALSE}
+NH <- historical %>%
+  filter(Country %in% c("China", "United States", "United Kingdom"))
+NH$Year <- factor(NH$Year, levels = sort(unique(NH$Year)))
+
+NH_p1 <- ggplot(NH, aes(x = Year, y = Emissions, fill = Country)) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  labs(title = "Annual Gas Emissions Comparison Between China, United States and United Kingdom",
+       x = "Year",
+       y = "Emissions",
+       fill = "Country") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        plot.title = element_text(size = 15, hjust = 0.5),
+        axis.title.x = element_text(size = 10),
+        axis.title.y = element_text(size = 10)) 
+NH_p1
+```
+
+In the Northern Hemisphere, China and the United States have very high greenhouse gas emissions. China had the largest gas emissions after the year 2005 among the four countries. The United States had more stable GHG emissions with some fluctuation. However, the United Kingdom has much lower gas emissions than them. Additionally, the greenhouse gas emissions of the United Kingdom decreased slightly each year.
+
+## South Hemisphere
+```{r, fig.width=10, echo=FALSE}
+SH <- historical %>%
+  filter(Country %in% c("Australia", "Brazil", "South Africa"))
+SH$Year <- factor(SH$Year, levels = sort(unique(SH$Year)))
+
+ggplot(SH, aes(x = Year, y = Emissions, fill = Country)) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  labs(title = "Annual Gas Emissions Comparison Between Australia, Brazil and South Africa",
+       x = "Year",
+       y = "Emissions",
+       fill = "Country") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        plot.title = element_text(size = 15, hjust = 0.5),
+        axis.title.x = element_text(size = 10),
+        axis.title.y = element_text(size = 10))
+```
+
+This plot above represents the greenhouse gas emissions from three countries in the Southern Hemisphere over the years from 1990 to 2019. Australia's gas emissions appear relatively consistent over the years, with a slight decline after 2012. Brazil's gas emissions are significantly higher than Australia's throughout the entire time period, peaking around 2010, and tend to decrease afterward. Although South Africa's emissions slightly increase over the years, the total greenhouse gas emissions are the lowest among the three countries. However, we want to take a closer look at Australia and South Africa to compare the GHG emissions differences more clearly. Therefore, we have created a second plot.
+
+```{r, echo=FALSE, fig.width=10}
+# zoom in version
+SH2 <- historical %>%
+  filter(Country %in% c("Australia", "South Africa"))
+SH2$Year <- factor(SH2$Year, levels = sort(unique(SH2$Year)))
+
+SH_p2 <- ggplot(SH2, aes(x = Year, y = Emissions, fill = Country)) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  labs(title = "Annual Gas Emissions Comparison of Australia and South Africa",
+       x = "Year",
+       y = "Emissions",
+       fill = "Country") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        plot.title = element_text(size = 15, hjust = 0.5),
+        axis.title.x = element_text(size = 10),
+        axis.title.y = element_text(size = 10))
+SH_p2
+```
+
+After zooming in on the plot, from 1990 to 2011, Australia had higher GHG emissions than South Africa. However, after 2011, the difference in GHG emissions between Australia and South Africa became smaller. Overall, Australia had slightly higher GHG emissions than South Africa throughout the period. This could be due to various factors including industrialization and economic activity.
+
+# Part III: Global Emissions Change
+
+```{r, echo=FALSE}
+World <- historical %>%
+  filter(Country %in% c("World"))
+
+World_plot <- World %>%
+  ggplot(aes(x = Year, y = Emissions)) +
+  geom_line(group = 1) +
+  geom_point() +
+  labs(x = "Year",
+       y = "Gases Emissions",
+       title = "Total Greenhouse Gases Emissions Over Year in the World") +
+  theme_minimal()
+World_plot
+```
+
+The plot above illustrates the trend of global greenhouse gas emissions from 1990 to approximately 2019. Between 1990 and 2000, the gas emissions increase steadily but with relatively slow change. In the subsequent decade, the emissions began to rise at a more pronounced rate, particularly between 2000 and 2005, when the curve became markedly steeper, indicating a rapid acceleration in gas emissions. From 2010 to 2019, there was a continued and significant increase in greenhouse gas emissions. This indicates that the global emissions are accelerating.
+
+```{r, echo=FALSE}
+anova_World <- aov(Emissions ~ Year, World)
+summary(anova_World)
+```
+
+The p-value of World's greenhouse gas emissions ANOVA test is less than 2e-16, indicating that we have sufficient evidence to suggest a statistically significant relationship between emissions and the year. This implies that greenhouse gas emissions have changed over 30 years.
+
+```{r, echo=FALSE}
+qqnorm(resid(anova_World), main = "Q-Q Plot for World Gases Emissions")
+qqline(resid(anova_World), col = "red")
+```
+
+The Q-Q plots for the World's gases emissions of residuals align well with the line, indicating that the residuals are approximately normally distributed.
+
+# Conclusion
+
+In conclusion, the analysis of GHG emissions over the past 30 years reveals that most representative countries have maintained relatively stable emissions, except for China that shows a clear increasing trend. Additionally, China and the United States exhibit significantly higher emissions compared to other countries. Overall, global emissions are increasing. These findings underscore the urgent need for effective strategies and policies to achieve net-zero GHG emissions globally. 
+
+However, the result of this report is not perfect, for example, we did not specify different types of greenhouse gases. It provides a solid foundation for future iterations and improvements. Future studies could specify different types of greenhouse gases and use the data to build a prediction model to forecast future GHG emissions.
+
+
