@@ -1,0 +1,311 @@
+---
+title: "Mini Project 2"
+author: 
+  - Xiaofeng Cai
+  
+date: "`r Sys.Date()`"
+date-format: long
+format: 
+  pdf:
+    geometry: "margin=0.9in, top=0.8in, bottom=1.1in" 
+    toc: true 
+    toc_depth: 2  
+    number_sections: true 
+---
+
+\newpage
+
+```{r, echo = F, message = F}
+library(readr)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+
+basics <- read_csv("data/basics.csv")
+ratings <- read_csv("data/ratings.csv")
+
+genres_split <- basics %>%
+  mutate(genres = strsplit(as.character(genres), ",")) %>%
+  unnest(genres)
+
+new_data <- left_join(genres_split, ratings, by = "tconst")
+```
+
+# Part 1: Check significant difference between average ratings across different genres
+
+Check normality:
+
+```{r, echo = F}
+qqnorm(new_data$averageRating)
+qqline(new_data$averageRating)
+```
+The points on the QQ plot mostly fall along the straight line, so the average ratings across different genres is likely normally distributed.
+
+## 1. Check the significant difference between average ratings of Drama and Documentary
+
+```{r, echo = F, message = F}
+Drama_Doc <- new_data %>% 
+  filter(genres %in%  c("Drama","Documentary"))
+
+Drama_Doc_plot <- Drama_Doc %>%
+  ggplot(aes(x = averageRating, y =genres)) +
+  geom_boxplot(staplewidth = 0.25) +
+  theme_minimal() +
+  ggtitle("Average Rating between Drama and Documentary")
+
+print(Drama_Doc_plot)
+```
+From the above box plot, we can see that the median of the average ratings between drama and documentary has a significant difference. 
+
+```{r, echo = F}
+Drama <- filter(Drama_Doc, genres == "Drama")$averageRating
+Documentary <- filter(Drama_Doc, genres == "Documentary")$averageRating
+
+t_test_1 <- t.test(Drama, Documentary, alternative = "two.sided")
+print(t_test_1)
+```
+
+In addition, the p-value from the t-test is less than 0.05, it suggests that there is a statistically significant difference between the average ratings of movies in the Drama genre and those in the Documentary genre.
+
+## 2. Check the significant difference between average ratings of Drama and Adventure
+
+```{r, echo = F}
+Drama_Adv <- new_data %>% 
+  filter(genres %in%  c("Drama","Adventure"))
+
+Drama_Adv_plot <- Drama_Adv %>%
+  ggplot(aes(x = averageRating, y = genres)) +
+  geom_boxplot(staplewidth = 0.25) +
+  theme_minimal() +
+  ggtitle("Average Rating between Drama and Adventure")
+
+print(Drama_Adv_plot)
+```
+From the above box plot, it is difficult to distinguish the difference in median average ratings between drama and adventure genres. I will use a t-test to check if there is a statistically difference.
+
+```{r, echo = F}
+Adventure <- filter(Drama_Adv, genres == "Adventure")$averageRating
+
+t_test_2 <- t.test(Drama, Adventure, alternative = "two.sided")
+print(t_test_2)
+```
+The p-value from the t-test is less than 0.05, which indicates there is a statistically significant difference between the average ratings of movies in the Drama genre and those in the Adventure genre.
+
+## 3. Check the significant difference between average ratings of Crime and Comedy
+
+```{r, echo = F}
+Cri_Com <- new_data %>% 
+  filter(genres %in%  c("Crime","Comedy"))
+
+Cri_Com_plot <- Cri_Com %>%
+  ggplot(aes(x = averageRating, y =genres)) +
+  geom_boxplot(staplewidth = 0.25) +
+  theme_minimal() +
+  ggtitle("Average Rating between Crime and Comedy")
+
+print(Cri_Com_plot)
+```
+From the above box plot, it is difficult to distinguish the difference in median average ratings between crime and comedy genres. I will use a t-test to check if there is a statistically difference.
+
+```{r, echo = F}
+Crime <- filter(Cri_Com, genres == "Crime")$averageRating
+Comedy <- filter(Cri_Com, genres == "Comedy")$averageRating
+
+t_test_3 <- t.test(Crime, Comedy, alternative = "two.sided")
+print(t_test_3)
+```
+The p-value from the t-test is greater than 0.05, which indicates there is not a statistically significant difference between the average ratings of movies in the Crime genre and those in the Comedy genre.
+
+## 4. Check the significant difference between average ratings across all different genres
+
+Now, I am going to check if there is a significant difference of average ratings across all different genres. 
+
+```{r, echo = F}
+anova_result_1 <- aov(averageRating ~ genres, data = new_data)
+summary(anova_result_1)
+```
+From the ANOVA test, the p-value is less than 0.05, so there is a significant difference of average ratings across all different genres. 
+
+## 5. Check the significant difference between average ratings across drama, crime, and comedy
+
+```{r, echo = F}
+Dra_Cri_Com <- new_data %>% 
+  filter(genres %in%  c("Drama","Crime","Comedy"))
+
+Dra_Cri_Com_plot <- Dra_Cri_Com %>%
+  ggplot(aes(x = averageRating, y =genres)) +
+  geom_boxplot(staplewidth = 0.25) +
+  theme_minimal() +
+  ggtitle("Average Rating across Drama, Crime and Comedy")
+
+print(Dra_Cri_Com_plot)
+```
+From the above box plot, we can see there are statistically significance of average ratings across these three genres. I will also use ANOVA test to check if my conclusion is correct. 
+
+```{r, echo=F}
+result_1 <- aov(averageRating ~ genres, data = Dra_Cri_Com)
+summary(result_1)
+```
+From the ANOVA test, the p-value is less than 0.05, so there is a significant difference of average ratings across these three genres.
+
+## 6. Check the significant difference between average ratings across drama, documentary, and adventure
+
+```{r, echo = F}
+Dra_Doc_Adv <- new_data %>% 
+  filter(genres %in%  c("Drama","Documentary","Adventure"))
+
+Dra_Doc_Adv_plot <- Dra_Doc_Adv %>%
+  ggplot(aes(x = averageRating, y =genres)) +
+  geom_boxplot(staplewidth = 0.25) +
+  theme_minimal() +
+  ggtitle("Average Rating across Drama, Documentary and Adventure")
+
+print(Dra_Doc_Adv_plot)
+```
+From the above box plot, we can see there are statistically significance of average ratings across these three genres. I will also use ANOVA test to check if my conclusion is correct. 
+
+```{r, echo=F}
+result_2 <- aov(averageRating ~ genres, data = Dra_Doc_Adv)
+summary(result_2)
+```
+From the ANOVA test, the p-value is less than 0.05, so there is a significant difference of average ratings across these three genres.
+
+\newpage
+
+# Part 2: Check significant difference between average ratings with genres over year
+
+## 1. Drama
+```{r, echo = F}
+Drama_data <- filter(Drama_Doc, genres == "Drama")
+anova_result_2 <- aov(averageRating ~ startYear, data = Drama_data)
+summary(anova_result_2)
+```
+Given that the p-value from the ANOVA test less than 0.05, it suggests a statistically significant difference in average ratings within the drama genre across different years.
+
+## 2. Crime
+```{r, echo = F}
+Crime_data <- filter(new_data, genres == "Crime")
+anova_result_3 <- aov(averageRating ~ startYear, data = Crime_data)
+summary(anova_result_3)
+```
+Given that the p-value from the ANOVA test less than 0.05, it suggests a statistically significant difference in average ratings within the crime genre across different years.
+
+## 3. Biography
+```{r, echo = F}
+Biography_data <- filter(new_data, genres == "Biography")
+anova_result_4 <- aov(averageRating ~ startYear, data = Biography_data)
+summary(anova_result_4)
+```
+Given that the p-value from the ANOVA test less than 0.05, it suggests a statistically significant difference in average ratings within the crime genre across different years.
+
+## Plot average ratings with these three genres over year
+
+```{r, echo = F, fig.width = 12, message = F}
+new_data$averageRating <- as.numeric(new_data$averageRating)
+
+ratings_num <- new_data %>%
+  filter(!is.na(averageRating) & startYear != "\\N" & !is.na(startYear))
+
+ratings_data <- ratings_num %>% 
+  filter(genres %in% c("Biography", "Crime", "Drama")) %>% 
+  group_by(startYear, genres) %>% 
+  summarise(average_rate = mean(averageRating, na.rm = TRUE))
+
+ggplot(ratings_data, aes(x = startYear, y = average_rate, color = genres)) +
+  geom_line(group = 1) +
+  labs(x = "Year", y = "Average Rating", title = "Average Rating of Movies Over Time by Genre") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+In the line graph, we can observe a significant difference in average ratings among these three genres across different years.
+
+\newpage
+# Part 3: The average runtime of movies over year
+
+```{r, echo = F, fig.width = 12, message = F}
+new_data$runtimeMinutes <- as.numeric(new_data$runtimeMinutes)
+
+numeric_data <- new_data %>%
+  filter(!is.na(runtimeMinutes) & startYear != "\\N" & !is.na(startYear))
+
+run_time_data <- numeric_data %>% 
+  filter(titleType == "movie") %>% 
+  group_by(startYear) %>% 
+  summarise(average_runtime = mean(runtimeMinutes, na.rm = T))
+
+ggplot(run_time_data, aes(x = startYear, y = average_runtime)) +
+  geom_line(group = 1) +
+  labs(x = "Year", y = "Average Runtime", title = "Average Runtime of Movies Over Year") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+In the line graph, we observe a significant difference in average movie runtime across genres over the years.
+
+I am also going to use ANOVA to check my answer. First, I will check the normality of the data.
+```{r, echo = F}
+qqnorm(run_time_data$average_runtime)
+qqline(run_time_data$average_runtime)
+```
+The points on the QQ plot mostly fall along the straight line, so the average runtime of movie is likely normally distributed. Then I can use ANOVA test.
+
+```{r, echo = F}
+anova_result_5 <- aov(startYear ~ average_runtime, run_time_data)
+summary(anova_result_5)
+```
+Given that the p-value from the ANOVA test less than 0.05, it also suggests a statistically significant difference in average movie runtime over year.
+
+\newpage
+# Part 4: Check if episode lengths (of TV Series) appear to have gotten longer over time
+
+```{r, echo = F}
+new_data$runtimeMinutes <- as.numeric(new_data$runtimeMinutes)
+
+numeric_data <- new_data %>%
+  filter(!is.na(runtimeMinutes) & startYear != "\\N" & !is.na(startYear))
+
+TV <- numeric_data %>% 
+  filter(titleType == "tvSeries") %>% 
+  group_by(startYear) %>% 
+  summarise(average_runtime = mean(runtimeMinutes, na.rm = T))
+
+anova_result_6 <- aov(startYear ~ average_runtime, TV)
+summary(anova_result_6)
+```
+
+```{r, echo = F}
+qqnorm(resid(anova_result_6))
+qqline(resid(anova_result_6))
+```
+
+Given that the p-value from the ANOVA test less than 0.05, it suggests a statistically significant difference in episode lengths (of TV Series) over year. The QQ-plot of the residuals also holds the normality assumption. However, it cannot tell us if the episode lengths of TV series have gotten longer over time. Thus, I am going to create a line graph to figure out the pattern.
+
+```{r, echo = F, fig.width = 12}
+ggplot(TV, aes(x = startYear, y = average_runtime)) +
+  geom_line(group = 1) +
+  labs(x = "Year", y = "Average Runtime", title = "Average Runtime of TV Series Over Time") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+It is clearly from the line graph that the lengths of TV series episodes experienced a sudden decrease after 1919, followed by an sudden increase in 1941. However, they subsequently declined again and remained relatively constant in the following years. Thus the episode length did not appear to gotten longer over time. 
+
+\newpage
+# Part 5: Check if the number of movie only for adult increase over year
+
+```{r, echo = F, fig.width = 12, message = F}
+mov_adult <- numeric_data %>% 
+  filter(titleType == "movie") %>% 
+  group_by(startYear) %>% 
+  summarise(count = sum(isAdult == 1, na.rm = TRUE))
+
+ggplot(mov_adult, aes(x = startYear, y = count)) +
+  geom_line(group= 1) + 
+  labs(x = "Year", y = "Count", title = "Number of Movies Only for Adults Over Year") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+From the line graph, it is clear that the number of movies only for adults increased suddenly from 1966 to 1991. However, after that time period, the number of movies only for adults has dropped.
+
+```
