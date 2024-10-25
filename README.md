@@ -9,5 +9,8 @@ Researched on the Global Evolution of Green House Gas (GHG) Emissions Over the P
 ## Dimension_Reduction
 Performed dimension reduction on an MNIST image and reconstituted the dimension-reduced image
 
+## mini_project_01
+Analyzed data from the United States Bureau of Transportation Statistics (BTS). Produced multiple statistical graphs to explore flight data, such as doubly grouped side-by-side boxplots
+
 ## mini_project_02
 Analyzed various aspects of films from the Internet Movie Database (IMDb) and compared several different characteristics, especially using statistical tests such as t-tests and ANOVA
