@@ -2,7 +2,7 @@
 ## GHG_emissions_over_past_30_years
 Researched on the Global Evolution of Green House Gas (GHG) Emissions Over the Past 30 Years
 - Conducted analysis of historical GHG emissions data from Climate Watch using R, examining global patterns and comparing trends between the Northern and Southern Hemispheres to identify regional differences
-- Concluded that global GHG emissions showed increasing trend, while America and China had significantly higher emissions than other countries
+- Concluded that global GHG emissions showed increasing trend, while United States and China had significantly higher emissions than other countries
 - Developed an interactive Shiny app for data visualization of GHG changes over time and across different countries
 
 ## Dimension_Reduction
